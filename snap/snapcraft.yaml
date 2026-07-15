@@ -1,0 +1,119 @@
+name: lunacd-megasync
+base: core24
+version: '6.4.0.2'
+license: 
+summary: Easy automated syncing between your computers and your MEGA Cloud Drive
+description: |
+  Easy automated syncing and backup between your computers and your MEGA cloud drive.
+
+  MEGA Desktop is an installable application that synchronises folders between your
+  computer and your MEGA Cloud Drive. All files and subfolders will be replicated in
+  both directions. Changes that you make on your device will also be made on the MEGA
+  Cloud Drive. Similarly, changes made in your MEGA Cloud Drive (such as renaming,
+  moving and deleting) will also be made to the synced folders on your device.
+
+grade: devel
+confinement: devmode
+
+plugs:
+  gpu-2404:
+    interface: content
+    target: $SNAP/gpu-2404
+    default-provider: mesa-2404
+
+parts:
+  pdfium:
+    plugin: nil
+
+  megasync:
+    plugin: cmake
+    source: https://github.com/meganz/MEGAsync.git
+    source-type: git
+    source-tag: v${SNAPCRAFT_PROJECT_VERSION}_Linux
+    source-depth: 1
+    cmake-parameters:
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DCMAKE_MODULE_PATH=${CRAFT_PART_SRC}/src/MEGASync/mega/cmake/modules/packages"
+      - "-DUSE_PDFIUM=OFF" # TODO
+      - "-DUSE_BREAKPAD=OFF" # TODO
+      - "-DENABLE_DESKTOP_UPDATE_GEN=OFF" # No need to update in snaps
+      - "-DENABLE_DESKTOP_UPDATER=OFF" # No need to update in snaps
+    cmake-generator: Ninja
+    build-packages:
+      - pkgconf
+      - libavcodec-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libcurl3-gnutls-dev
+      - libcrypto++-dev
+      - libfreeimage-dev
+      - libglib2.0-dev
+      - libicu-dev
+      - libmediainfo-dev
+      - libqt5x11extras5-dev
+      - libqt5svg5-dev
+      - libssl-dev
+      - libsqlite3-dev
+      - libsodium-dev
+      - libswresample-dev
+      - libswscale-dev
+      - libuv1-dev
+      - qtbase5-dev
+      - qtdeclarative5-dev
+      - qttools5-dev
+      - ninja-build
+    stage-packages:
+      - libavcodec60
+      - libavformat60
+      - libavutil58
+      - libcrypto++8t64
+      - libcurl3t64-gnutls
+      - libfreeimage3
+      - libglib2.0-0t64
+      - libicu74
+      - libmediainfo0v5
+      - libqt5x11extras5
+      - libqt5svg5
+      - libssl3t64
+      - libsqlite3-0
+      - libsodium23
+      - libswresample4
+      - libswscale7
+      - libuv1t64
+      - libqt5qml5
+      - libqt5qmlmodels5
+      - libqt5quick5
+      - libqt5quickwidgets5
+    stage:
+      # OpenEXR is pulled in by FreeImage, but those parts are unused
+      - -usr/lib/*/libOpenEXRCore-3_1.so*
+      - -usr/lib/*/libOpenEXRUtil-3_1.so*
+      # Part of libglib2.0, this app doesn't use the threading part of glib
+      - -usr/lib/*/libgthread-2.0.so*
+      # avcodec pulls in libjxl0.7, then libhwy, but those parts are unused
+      - -usr/lib/*/libhwy_contrib.so*
+      - -usr/lib/*/libhwy_test.so*
+      # avcodec pulls in librist4, then libcjson1, but those parts are unused
+      - -usr/lib/*/libcjson_utils.so*
+      # avcodec pulls in libtheora0, but those parts are unused
+      - -usr/lib/*/libtheora.so*
+      # avcodec pulls in libzvbi0t64, but those parts are unused
+      - -usr/lib/*/libzvbi-chains.so*
+      # FreeImage pulls in libraw23t64, but those parts are unused
+      - -usr/lib/*/libraw_r.so*
+
+  gpu-2404:
+    after: [megasync]
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/gpu-2404-cleanup mesa-2404
+    prime:
+    - bin/gpu-2404-wrapper
+
+apps:
+  megasync:
+    command-chain:
+      - bin/gpu-2404-wrapper
+    command: usr/bin/megasync
