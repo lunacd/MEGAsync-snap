@@ -1,5 +1,5 @@
 name: lunacd-megasync
-base: core24
+base: core22
 version: '6.4.0.2'
 license: 
 summary: Easy automated syncing between your computers and your MEGA Cloud Drive
@@ -47,6 +47,7 @@ parts:
       - libmediainfo-dev
       - libqt5x11extras5-dev
       - libqt5svg5-dev
+      - libreadline-dev
       - libssl-dev
       - libsqlite3-dev
       - libsodium-dev
@@ -59,14 +60,14 @@ parts:
       - qttools5-dev
 
     stage-packages:
-      - libavcodec60
-      - libavformat60
-      - libavutil58
-      - libcrypto++8t64
-      - libcurl3t64-gnutls
+      - libavcodec58
+      - libavformat58
+      - libavutil56
+      - libcrypto++8
+      - libcurl3-gnutls
       - libfreeimage3
-      - libglib2.0-0t64
-      - libicu74
+      - libglib2.0-0
+      - libicu70
       - libmediainfo0v5
       - libqt5x11extras5
       - libqt5svg5
@@ -74,13 +75,23 @@ parts:
       - libqt5qmlmodels5
       - libqt5quick5
       - libqt5quickwidgets5
-      - libssl3t64
+      - libreadline8
+      - libssl3
       - libsqlite3-0
       - libsodium23
-      - libswresample4
-      - libswscale7
-      - libuv1t64
+      - libswresample3
+      - libswscale5
+      - libuv1
       - libxcb1
+      - qml-module-qtgraphicaleffects
+      - qml-module-qtqml-models2
+      - qml-module-qtquick-controls
+      - qml-module-qtquick-controls2
+      - qml-module-qtquick-dialogs
+      - qml-module-qtquick-layouts
+      - qml-module-qtquick-templates2
+      - qml-module-qtquick-window2
+      - qml-module-qtquick2
       - x11-xserver-utils
 
     stage:
@@ -105,13 +116,21 @@ apps:
   megasync:
     command: usr/bin/megasync
     extensions:
-      - gpu
+      - kde-neon
     plugs:
       - desktop
+      - desktop-legacy
+      - opengl
       - x11
       - wayland
+      - gsettings
+      - home
     environment:
       # QT_DEBUG_PLUGINS: 1
+      # QML_IMPORT_TRACE: 1
+      # QML_DISABLE_DISK_CACHE: 1
+      # QT_LOGGING_RULES: "qt.qml.import.debug=true;qt.qml.plugin.debug=true;qt.qpa.plugin=true"
       QT_PLUGIN_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/plugins
+      QML2_IMPORT_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/qml
       QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/plugins/platforms
 
