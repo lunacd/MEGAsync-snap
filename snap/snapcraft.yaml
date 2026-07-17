@@ -15,18 +15,46 @@ description: |
 grade: devel
 confinement: devmode
 
-parts:
-  pdfium:
-    plugin: nil
+plugs:
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core22
 
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/graphics/libdrm
+  /usr/share/drirc.d:
+    symlink: $SNAP/graphics/drirc.d
+
+parts:
+  libcurl:
+    plugin: cmake
+    source: https://github.com/curl/curl.git
+    source-type: git
+    source-tag: curl-8_21_0
+    source-depth: 1
+    cmake-generator: Ninja
+    cmake-parameters:
+      - "-DCMAKE_BUILD_TYPE=Release"
+      - "-DCMAKE_INSTALL_LIBDIR=/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR"
+      - "--install-prefix /usr"
+    build-packages:
+      - libpsl-dev
+    stage-packages:
+      - libpsl5
+    
   megasync:
+    after:
+      - libcurl
+
     plugin: cmake
     source: https://github.com/meganz/MEGAsync.git
     source-type: git
     source-tag: v${SNAPCRAFT_PROJECT_VERSION}_Linux
     source-depth: 1
     cmake-parameters:
-      - "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+      - "-DCMAKE_BUILD_TYPE=Release"
       - "-DCMAKE_MODULE_PATH=${CRAFT_PART_SRC}/src/MEGASync/mega/cmake/modules/packages"
       - "-DUSE_PDFIUM=OFF" # TODO
       - "-DUSE_BREAKPAD=OFF" # TODO
@@ -39,67 +67,45 @@ parts:
       - libavcodec-dev
       - libavformat-dev
       - libavutil-dev
-      - libcurl3-gnutls-dev
       - libcrypto++-dev
       - libfreeimage-dev
       - libglib2.0-dev
       - libicu-dev
       - libmediainfo-dev
-      - libqt5x11extras5-dev
-      - libqt5svg5-dev
       - libreadline-dev
-      - libssl-dev
       - libsqlite3-dev
+      - libssl-dev
       - libsodium-dev
       - libswresample-dev
       - libswscale-dev
       - libuv1-dev
-      - locales
-      - qtbase5-dev
-      - qtdeclarative5-dev
-      - qttools5-dev
 
     stage-packages:
       - libavcodec58
       - libavformat58
       - libavutil56
       - libcrypto++8
-      - libcurl3-gnutls
       - libfreeimage3
       - libglib2.0-0
-      - libicu70
       - libmediainfo0v5
-      - libqt5x11extras5
-      - libqt5svg5
-      - libqt5qml5
-      - libqt5qmlmodels5
-      - libqt5quick5
-      - libqt5quickwidgets5
-      - libreadline8
-      - libssl3
-      - libsqlite3-0
       - libsodium23
       - libswresample3
       - libswscale5
       - libuv1
       - libxcb1
-      - qml-module-qtgraphicaleffects
-      - qml-module-qtqml-models2
-      - qml-module-qtquick-controls
-      - qml-module-qtquick-controls2
-      - qml-module-qtquick-dialogs
-      - qml-module-qtquick-layouts
-      - qml-module-qtquick-templates2
-      - qml-module-qtquick-window2
-      - qml-module-qtquick2
+      - libxcb-shape0
       - x11-xserver-utils
 
     stage:
+      # Part of libglib2.0, this app doesn't use the threading part of glib
+      - -usr/lib/*/libgthread-2.0.so*
+      # Part of libicu, this app doesn't use those shared objects
+      - -usr/lib/*/libicuio.so*
+      - -usr/lib/*/libicutest.so*
       # OpenEXR is pulled in by FreeImage, but those parts are unused
       - -usr/lib/*/libOpenEXRCore-3_1.so*
       - -usr/lib/*/libOpenEXRUtil-3_1.so*
-      # Part of libglib2.0, this app doesn't use the threading part of glib
-      - -usr/lib/*/libgthread-2.0.so*
+      - -usr/lib/*/libIlmImfUtil-2_5.so*
       # avcodec pulls in libjxl0.7, then libhwy, but those parts are unused
       - -usr/lib/*/libhwy_contrib.so*
       - -usr/lib/*/libhwy_test.so*
@@ -107,30 +113,43 @@ parts:
       - -usr/lib/*/libcjson_utils.so*
       # avcodec pulls in libtheora0, but those parts are unused
       - -usr/lib/*/libtheora.so*
+      # avcodec pulls in libmfx1, but those parts are unused
+      - -usr/lib/*/libmfx-tracer.so*
+      - -usr/lib/*/libmfxhw64.so*
       # avcodec pulls in libzvbi0t64, but those parts are unused
       - -usr/lib/*/libzvbi-chains.so*
       # FreeImage pulls in libraw23t64, but those parts are unused
       - -usr/lib/*/libraw_r.so*
+      # FreeImage pull in libilmbase25, but those parts are unused
+      - -usr/lib/*/libIexMath-2_5.so*
+
+  graphics-core22:
+    after: [megasync]
+    source: https://github.com/canonical/gpu-snap.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/graphics-core22-cleanup mesa-core22 nvidia-core22
+    prime:
+      - bin/graphics-core22-wrapper
 
 apps:
   megasync:
+    command-chain:
+      - bin/graphics-core22-wrapper
     command: usr/bin/megasync
     extensions:
       - kde-neon
     plugs:
-      - desktop
-      - desktop-legacy
-      - opengl
-      - x11
-      - wayland
-      - gsettings
       - home
-    environment:
+    # environment variables for debugging
+    # environment:
       # QT_DEBUG_PLUGINS: 1
       # QML_IMPORT_TRACE: 1
-      # QML_DISABLE_DISK_CACHE: 1
-      # QT_LOGGING_RULES: "qt.qml.import.debug=true;qt.qml.plugin.debug=true;qt.qpa.plugin=true"
-      QT_PLUGIN_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/plugins
-      QML2_IMPORT_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/qml
-      QT_QPA_PLATFORM_PLUGIN_PATH: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt5/plugins/platforms
 
+
+lint:
+  ignore:
+    - library:
+      # Dynamically loaded by Qt xcb plugin
+      - usr/lib/*/libxcb-shape.so*
