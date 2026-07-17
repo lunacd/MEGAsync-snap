@@ -57,7 +57,7 @@ parts:
       - "-DCMAKE_BUILD_TYPE=Release"
       - "-DCMAKE_MODULE_PATH=${CRAFT_PART_SRC}/src/MEGASync/mega/cmake/modules/packages"
       - "-DUSE_PDFIUM=OFF" # TODO
-      - "-DUSE_BREAKPAD=OFF" # TODO
+      - "-DUSE_BREAKPAD=OFF"
       - "-DENABLE_DESKTOP_UPDATE_GEN=OFF" # No need to update in snaps
       - "-DENABLE_DESKTOP_UPDATER=OFF" # No need to update in snaps
     cmake-generator: Ninja
@@ -142,6 +142,7 @@ apps:
       - kde-neon
     plugs:
       - home
+    desktop: usr/share/applications/megasync.desktop
     # environment variables for debugging
     # environment:
       # QT_DEBUG_PLUGINS: 1
