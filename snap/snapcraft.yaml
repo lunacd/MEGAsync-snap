@@ -1,7 +1,8 @@
 name: lunacd-megasync
+title: MEGA Desktop App
 base: core22
 version: '6.4.0.2'
-license: 
+license: Proprietary
 summary: Easy automated syncing between your computers and your MEGA Cloud Drive
 description: |
   Easy automated syncing and backup between your computers and your MEGA cloud drive.
@@ -12,8 +13,18 @@ description: |
   Cloud Drive. Similarly, changes made in your MEGA Cloud Drive (such as renaming,
   moving and deleting) will also be made to the synced folders on your device.
 
-grade: devel
-confinement: devmode
+website:
+  - https://mega.io/desktop
+source-code:
+  - https://github.com/meganz/MEGAsync
+  - https://github.com/lunacd/MEGAsync-snap
+issues:
+  - https://github.com/lunacd/MEGAsync-snap/issues
+contact:
+  - liu.haowen.andy@gmail.com
+
+grade: stable
+confinement: strict
 
 plugs:
   graphics-core22:
