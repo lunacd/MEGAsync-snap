@@ -67,6 +67,13 @@ parts:
       git am "${CRAFT_PROJECT_DIR}/patches/0001-Avoid-native-file-chooser.patch"
       git am "${CRAFT_PROJECT_DIR}/patches/0002-Expose-socket-to-real-user-home.patch"
 
+    override-build: |
+      craftctl default
+
+      # As of snapcraft 9.0, there's no support for resolving named icons:
+      # https://github.com/canonical/snapcraft/blob/df4418f67617fcddb551f28d00d9004728cd1ff6/snapcraft/parts/desktop_file.py#L93
+      cp $CRAFT_PART_INSTALL/usr/share/icons/hicolor/256x256/apps/mega.png $CRAFT_PART_INSTALL/mega
+
     build-packages:
       - pkgconf
       - libavcodec-dev
