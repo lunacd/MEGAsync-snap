@@ -14,6 +14,9 @@ description: |
   Cloud Drive. Similarly, changes made in your MEGA Cloud Drive (such as renaming,
   moving and deleting) will also be made to the synced folders on your device.
 
+  Unofficial build of MEGA Desktop App. Not affiliated with, endorsed by, or supported by
+  MEGA Limited.
+
 website:
   - https://mega.io/desktop
 source-code:
