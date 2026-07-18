@@ -1,7 +1,7 @@
 From 0f17d82cd4ddfe8c06722e3fb3ac3a35d9980c9b Mon Sep 17 00:00:00 2001
 From: Haowen Liu <liu.haowen.andy@gmail.com>
 Date: Sat, 18 Jul 2026 12:01:39 -0400
-Subject: [PATCH 2/2] Expose socket to real user home
+Subject: [PATCH 2/3] Expose socket to real user home
 
 ---
  src/MEGASync/MegaApplication.cpp | 21 +++++++++++++++++----

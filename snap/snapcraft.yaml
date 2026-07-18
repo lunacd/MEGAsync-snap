@@ -66,6 +66,7 @@ parts:
       craftctl default
       git am "${CRAFT_PROJECT_DIR}/patches/0001-Avoid-native-file-chooser.patch"
       git am "${CRAFT_PROJECT_DIR}/patches/0002-Expose-socket-to-real-user-home.patch"
+      git am "${CRAFT_PROJECT_DIR}/patches/0003-Use-real-home-in-snap.patch"
 
     override-build: |
       craftctl default

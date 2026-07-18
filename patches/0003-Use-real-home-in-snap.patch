@@ -1,0 +1,44 @@
+From d68bbb14c3bb605427e1ca7553e14f688924f308 Mon Sep 17 00:00:00 2001
+From: Haowen Liu <liu.haowen.andy@gmail.com>
+Date: Sat, 18 Jul 2026 16:01:17 -0400
+Subject: [PATCH 3/3] Use real home in snap
+
+---
+ src/MEGASync/MegaApplication.cpp   | 4 ++++
+ src/MEGASync/control/Utilities.cpp | 5 +++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/src/MEGASync/MegaApplication.cpp b/src/MEGASync/MegaApplication.cpp
+index 633a1b314..5ef6e1fd5 100644
+--- a/src/MEGASync/MegaApplication.cpp
++++ b/src/MEGASync/MegaApplication.cpp
+@@ -3235,6 +3235,10 @@ QString MegaApplication::getDefaultUploadPath()
+     {
+         defaultFolderPath = paths.at(0);
+     }
++    if (qEnvironmentVariableIsSet("SNAP_REAL_HOME"))
++    {
++        defaultFolderPath = qEnvironmentVariable("SNAP_REAL_HOME");
++    }
+     return defaultFolderPath;
+ }
+ 
+diff --git a/src/MEGASync/control/Utilities.cpp b/src/MEGASync/control/Utilities.cpp
+index da36cc4a1..06f7ee573 100644
+--- a/src/MEGASync/control/Utilities.cpp
++++ b/src/MEGASync/control/Utilities.cpp
+@@ -1147,6 +1147,11 @@ QString Utilities::getDefaultBasePath()
+             return defaultPaths.at(0);
+         }
+ #else
++        if (qEnvironmentVariableIsSet("SNAP_REAL_HOME"))
++        {
++            return qEnvironmentVariable("SNAP_REAL_HOME");
++        }
++
+         defaultPaths = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+         if (defaultPaths.size())
+         {
+-- 
+2.53.0
+
