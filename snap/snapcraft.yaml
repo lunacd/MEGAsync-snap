@@ -3,6 +3,7 @@ title: MEGA Desktop App
 base: core22
 version: '6.4.0.2'
 license: Proprietary
+icon: gui/mega.png
 summary: Easy automated syncing between your computers and your MEGA Cloud Drive
 description: |
   Easy automated syncing and backup between your computers and your MEGA cloud drive.
