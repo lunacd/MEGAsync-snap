@@ -1,0 +1,49 @@
+From d93b533df0a68a20861a95c4ae11b66319b81ad2 Mon Sep 17 00:00:00 2001
+From: Haowen Liu <liu.haowen.andy@gmail.com>
+Date: Fri, 17 Jul 2026 23:44:15 -0400
+Subject: [PATCH 1/2] Avoid native file chooser
+
+Using native file chooser causes the app to hang after selection
+---
+ src/MEGASync/gui/MultiQFileDialog.cpp      | 2 +-
+ src/MEGASync/platform/AbstractPlatform.cpp | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/MEGASync/gui/MultiQFileDialog.cpp b/src/MEGASync/gui/MultiQFileDialog.cpp
+index cf2eb8273..a3c4adf7d 100644
+--- a/src/MEGASync/gui/MultiQFileDialog.cpp
++++ b/src/MEGASync/gui/MultiQFileDialog.cpp
+@@ -15,7 +15,7 @@ MultiQFileDialog::MultiQFileDialog(QWidget *parent, const QString &caption, cons
+       mMultiSelect(multiSelect),
+       mEnableOkButton(false)
+ {
+-    setOption(QFileDialog::DontUseNativeDialog, false);
++    setOption(QFileDialog::DontUseNativeDialog, true);
+ 
+     if (multiSelect)
+     {
+diff --git a/src/MEGASync/platform/AbstractPlatform.cpp b/src/MEGASync/platform/AbstractPlatform.cpp
+index cd4649b99..5dabceb57 100644
+--- a/src/MEGASync/platform/AbstractPlatform.cpp
++++ b/src/MEGASync/platform/AbstractPlatform.cpp
+@@ -166,7 +166,7 @@ void AbstractPlatform::fileSelector(const SelectorInfo &info)
+     fileDialog->setWindowTitle(info.title);
+     fileDialog->setDirectory(defaultDir);
+     fileDialog->setOption(QFileDialog::DontResolveSymlinks, true);
+-    fileDialog->setOption(QFileDialog::DontUseNativeDialog, false);
++    fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+     if(info.multiSelection)
+     {
+         fileDialog->setFileMode(QFileDialog::ExistingFiles);
+@@ -212,7 +212,7 @@ void AbstractPlatform::folderSelector(const SelectorInfo &info)
+         fileDialog->setWindowTitle(info.title);
+         fileDialog->setDirectory(defaultDir);
+         fileDialog->setOption(QFileDialog::DontResolveSymlinks, true);
+-        fileDialog->setOption(QFileDialog::DontUseNativeDialog, false);
++        fileDialog->setOption(QFileDialog::DontUseNativeDialog, true);
+         fileDialog->setOption(QFileDialog::ShowDirsOnly, true);
+         fileDialog->setFileMode(QFileDialog::Directory);
+         //Orphan native dialogs must be modal in Windows and Linux. On macOS this method has its own implementation.
+-- 
+2.53.0
+

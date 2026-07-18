@@ -62,6 +62,11 @@ parts:
       - "-DENABLE_DESKTOP_UPDATER=OFF" # No need to update in snaps
     cmake-generator: Ninja
 
+    override-pull: |
+      craftctl default
+      git am "${CRAFT_PROJECT_DIR}/patches/0001-Avoid-native-file-chooser.patch"
+      git am "${CRAFT_PROJECT_DIR}/patches/0002-Expose-socket-to-real-user-home.patch"
+
     build-packages:
       - pkgconf
       - libavcodec-dev

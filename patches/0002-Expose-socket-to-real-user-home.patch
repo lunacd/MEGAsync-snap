@@ -1,0 +1,44 @@
+From 0f17d82cd4ddfe8c06722e3fb3ac3a35d9980c9b Mon Sep 17 00:00:00 2001
+From: Haowen Liu <liu.haowen.andy@gmail.com>
+Date: Sat, 18 Jul 2026 12:01:39 -0400
+Subject: [PATCH 2/2] Expose socket to real user home
+
+---
+ src/MEGASync/MegaApplication.cpp | 21 +++++++++++++++++----
+ 1 file changed, 17 insertions(+), 4 deletions(-)
+
+diff --git a/src/MEGASync/MegaApplication.cpp b/src/MEGASync/MegaApplication.cpp
+index 774b8ca0b..633a1b314 100644
+--- a/src/MEGASync/MegaApplication.cpp
++++ b/src/MEGASync/MegaApplication.cpp
+@@ -109,10 +109,23 @@ static const QString KEEP_LOGS_ON_LOGOUT_FILE_NAME = QString::fromLatin1("megasy
+ void MegaApplication::loadDataPath()
+ {
+ #ifdef Q_OS_LINUX
+-    dataPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+-               + QString::fromUtf8("/data/") // appending "data" is non-standard behavior according to XDG Base Directory specification
+-               + organizationName() + QString::fromLatin1("/")
+-               + applicationName();
++    // Due to snap confinement, the socket needs to be exposed in the real user's
++    // home directory, not `SNAP_USER_DATA`.
++    // Given that this snap has `home` plug, it makes sense to put everything in the real user's home directory,
++    // like a un-confined Megasync would.
++    if (qEnvironmentVariableIsSet("SNAP_REAL_HOME")) {
++        dataPath = qEnvironmentVariable("SNAP_REAL_HOME") + QDir::separator() +
++                   QString::fromLatin1(".local") + QDir::separator() +
++                   QString::fromLatin1("share") + QDir::separator() +
++                   QString::fromLatin1("data") + QDir::separator() +
++                   organizationName() + QDir::separator() +
++                   applicationName();
++    } else {
++        dataPath = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
++                   + QString::fromUtf8("/data/") // appending "data" is non-standard behavior according to XDG Base Directory specification
++                   + organizationName() + QString::fromLatin1("/")
++                   + applicationName();
++    }
+ #else
+     QStringList dataPaths = QStandardPaths::standardLocations(QStandardPaths::AppLocalDataLocation);
+     if (dataPaths.size())
+-- 
+2.53.0
+
