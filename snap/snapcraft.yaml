@@ -38,7 +38,7 @@ plugs:
   mega-store:
     interface: personal-files
     write:
-      - $HOME/.local/share/data/Mega Limited
+      - $HOME/.local/share/data/Mega Limited/MEGAsync
 
 layout:
   /usr/share/libdrm:
